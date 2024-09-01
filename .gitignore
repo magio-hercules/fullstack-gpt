@@ -27,6 +27,7 @@ doc/api/
 
 
 # dotenv environment variables file
+env/
 .env*
 .idea/
-env/
+.cache/
