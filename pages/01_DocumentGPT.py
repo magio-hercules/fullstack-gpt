@@ -1,3 +1,7 @@
+import os
+import logging
+import streamlit as st
+
 from langchain.prompts import ChatPromptTemplate
 from langchain.document_loaders import UnstructuredFileLoader
 from langchain.embeddings import CacheBackedEmbeddings, OpenAIEmbeddings
@@ -7,21 +11,30 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores.faiss import FAISS
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.base import BaseCallbackHandler
-import streamlit as st
+from langchain.memory import ConversationBufferMemory
 
+
+# 로그 설정
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(levelname)s] %(message)s',
+)
 
 st.set_page_config(
     page_title="DocumentGPT",
     page_icon="📃",
 )
 
+file = None
 
 with st.sidebar:
-    api_key = st.text_input('Insert your OpenAI API keys')
-    file = st.file_uploader(
-        "Upload a .txt .pdf or .docx file",
-        type=["pdf", "txt", "docx"],
-    )
+    api_key = st.text_input('1. OpenAI API keys를 입력해주세요.')
+
+    if api_key:
+        file = st.file_uploader(
+            "2. 학습시킬 파일을 업로드 하세요. (.txt .pdf .docx)",
+            type=["pdf", "txt", "docx"],
+        )
 
 
 class ChatCallbackHandler(BaseCallbackHandler):
@@ -47,11 +60,27 @@ llm = ChatOpenAI(
     openai_api_key=api_key
 )
 
+memory = ConversationBufferMemory(
+    llm=llm,
+    return_messages=True
+)
 
-@st.cache_data(show_spinner="Embedding file...")
+
+@st.cache_data(show_spinner="파일 임베딩 중...")
 def embed_file(file):
-    file_content = file.read()
     file_path = f"./.cache/files/{file.name}"
+
+    # 폴더 경로만 추출 (파일명 제외)
+    folder_path = os.path.dirname(file_path)
+    
+    # 폴더가 존재하는지 확인하고, 없으면 생성
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    logging.info(f'folder_path: {folder_path}')
+    logging.info(f'file_path: {file_path}')
+
+    file_content = file.read()
     with open(file_path, "wb") as f:
         f.write(file_content)
     cache_dir = LocalFileStore(f"./.cache/embeddings/{file.name}")
@@ -98,7 +127,9 @@ prompt = ChatPromptTemplate.from_messages(
         (
             "system",
             """
-            Answer the question using ONLY the following context. If you don't know the answer just say you don't know. DON'T make anything up.
+            Answer the question using ONLY the following context.
+            If you don't know the answer just say you don't know. 
+            DON'T make anything up.
             
             Context: {context}
             """,
@@ -109,36 +140,40 @@ prompt = ChatPromptTemplate.from_messages(
 
 
 st.title("DocumentGPT")
-
 st.markdown(
-    """
-Welcome!
-            
-Use this chatbot to ask questions to an AI about your files!
+"""
+이 챗봇은 파일의 내용을 분석해서 대답해주는 AI 챗봇입니다.
 
-Upload your files on the sidebar.
+사용 방법은 다음과 같습니다.
+1. SideBar에 OpenAI API Keys를 입력하세요.
+2. 질문하고 싶은 내용의 파일을 업로드 하세요.
+3. 무엇이든 물어보세요!
+
+---
 """
 )
 
 
+def load_memory(_):
+    return memory.load_memory_variables({})["history"]
+
 if file:
     retriever = embed_file(file)
-    send_message("I'm ready! Ask away!", "ai", save=False)
+    send_message("챗봇 준비완료! 무엇이든 물어보세요!", "ai", save=False)
     paint_history()
-    message = st.chat_input("Ask anything about your file...")
+    message = st.chat_input("업로드 된 파일에 대해 궁금한게 무엇인가요?")
     if message:
         send_message(message, "human")
         chain = (
             {
                 "context": retriever | RunnableLambda(format_docs),
-                "question": RunnablePassthrough(),
+                "question": RunnablePassthrough(), 
+                "history": load_memory,
             }
             | prompt
             | llm
         )
         with st.chat_message("ai"):
             chain.invoke(message)
-
-
 else:
     st.session_state["messages"] = []

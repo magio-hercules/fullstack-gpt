@@ -7,17 +7,21 @@ st.set_page_config(
 
 st.markdown(
     """
-# Hello!
+## 안녕하세요. 
+## 알렉산도#대왕 입니다.
             
-Welcome to my FullstackGPT Portfolio!
-            
-Here are the apps I made:
-            
+FullstackGPT를 배우는 과정에서 연습하는 공간입니다.
+
+앞으로 이런것들을 만들게 되는것 같네요.
+
+
 - [x] [DocumentGPT](/DocumentGPT)
 - [ ] [PrivateGPT](/PrivateGPT)
 - [ ] [QuizGPT](/QuizGPT)
 - [ ] [SiteGPT](/SiteGPT)
 - [ ] [MeetingGPT](/MeetingGPT)
 - [ ] [InvestorGPT](/InvestorGPT)
+
+
 """
 )
