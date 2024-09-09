@@ -7,8 +7,25 @@ from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 import streamlit as st
 
+
+st.set_page_config(
+    page_title="Cloudflare's SiteGPT",
+    page_icon="🖥️",
+)
+
+with st.sidebar:
+    api_key = st.text_input(
+        'Step1. OpenAI API keys를 입력해주세요.',
+        type='password',
+    )
+
 llm = ChatOpenAI(
     temperature=0.1,
+    streaming=True,
+    # callbacks=[
+    #     ChatCallbackHandler(),
+    # ],
+    openai_api_key=api_key
 )
 
 answers_prompt = ChatPromptTemplate.from_template(
@@ -124,6 +141,11 @@ def load_website(url):
     loader = SitemapLoader(
         url,
         parsing_function=parse_page,
+        filter_urls=[
+            r"^(.*\/ai-gateway\/).*",
+            r"^(.*\/vectorize\/).*",
+            r"^(.*\/workers-ai\/).*",
+        ],
     )
     loader.requests_per_second = 2
     docs = loader.load_and_split(text_splitter=splitter)
@@ -131,15 +153,10 @@ def load_website(url):
     return vector_store.as_retriever()
 
 
-st.set_page_config(
-    page_title="SiteGPT",
-    page_icon="🖥️",
-)
-
 
 st.markdown(
     """
-    # SiteGPT
+    # SiteGPT - Cloudflare 
             
     Ask questions about the content of a website.
             
@@ -150,10 +167,11 @@ st.markdown(
 
 with st.sidebar:
     url = st.text_input(
-        "Write down a URL",
+        "Step2. Cloudflare URL을 입력해주세요.(고정)",
         placeholder="https://example.com",
+        value="https://developers.cloudflare.com/sitemap-0.xml",
+        disabled=True,
     )
-
 
 if url:
     if ".xml" not in url:
