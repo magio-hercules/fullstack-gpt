@@ -201,14 +201,18 @@ def load_website(url):
         chunk_size=1000,
         chunk_overlap=200,
     )
-    loader = SitemapLoader(
-        url,
-        parsing_function=parse_page,
-        filter_urls=[
+
+    filters = [
             r"^(.*\/ai-gateway\/).*",
             r"^(.*\/vectorize\/).*",
             r"^(.*\/workers-ai\/).*",
-        ],
+        ] if site_type == 'Cloudflare' else [
+             r"^(.*\/ui\/).*",
+        ]
+    loader = SitemapLoader(
+        url,
+        parsing_function=parse_page,
+        filter_urls=filters,
     )
     loader.requests_per_second = 2
     docs = loader.load_and_split(text_splitter=splitter)
@@ -223,24 +227,26 @@ def load_website(url):
     return vectorstore.as_retriever()
 
 
-st.markdown(
-    """
-    # SiteGPT - Cloudflare 
-            
-    Cloudflare에 관련된 모든 질문을 해보세요.
-
-    ---
-"""
-)
-
-
 with st.sidebar:
+    site_type = st.radio(label = 'Step2. WebSite 선택', options = ['Cloudflare', 'Flutter'])
+    st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
     url = st.text_input(
-        "Step2. Cloudflare URL을 입력해주세요.(고정)",
+        "Step2-1. Site URL (고정)",
         placeholder="https://example.com",
-        value="https://developers.cloudflare.com/sitemap-0.xml",
+        value="https://developers.cloudflare.com/sitemap-0.xml" if site_type == 'Cloudflare' else "https://docs.flutter.dev/sitemap.xml",
         disabled=True,
     )
+
+st.markdown(
+    f"""
+    # SiteGPT - {site_type} 
+    ### {site_type if site_type == 'Cloudflare' else 'Flutter UI'}에 관련된 모든 질문을 해보세요.
+    ---
+    """
+)
+
+if not api_key:
+    st.error('Step1. OpenAI API Key를 입력해주세요.')
 
 if (not api_key) or (not url):
     st.session_state["messages"] = []
