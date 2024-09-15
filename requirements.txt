@@ -16,6 +16,7 @@ beautifulsoup4==4.12.2
 black==23.9.1
 blinker==1.6.2
 blis==0.7.10
+branca==0.7.2
 Brotli==1.1.0
 cachetools==5.3.1
 catalogue==2.0.9
@@ -26,6 +27,7 @@ charset-normalizer==3.2.0
 chroma-hnswlib==0.7.3
 chromadb==0.4.11
 click==8.1.7
+colorama==0.4.6
 coloredlogs==15.0.1
 comm==0.1.4
 confection==0.1.3
@@ -37,8 +39,9 @@ dataclasses-json==0.5.14
 debugpy==1.8.0
 decorator==5.1.1
 dill==0.3.7
+distro==1.9.0
 dnspython==2.4.2
-duckduckgo-search==3.8.5
+duckduckgo_search==6.2.11
 EbookLib==0.18
 effdet==0.4.1
 elastic-transport==8.4.0
@@ -48,13 +51,16 @@ emoji==2.8.0
 et-xmlfile==1.1.0
 executing==1.2.0
 faiss-cpu==1.7.4
+fake_useragent==1.5.1
 fastapi==0.99.1
 ffmpeg==1.4
 ffmpeg-python==0.2.0
 filelock==3.12.4
 filetype==1.2.0
 flatbuffers==23.5.26
+folium==0.17.0
 fonttools==4.42.1
+frozendict==2.4.4
 frozenlist==1.4.0
 fsspec==2023.9.1
 future==0.18.3
@@ -66,6 +72,7 @@ h11==0.14.0
 h2==4.1.0
 hpack==4.0.0
 html2text==2020.1.16
+html5lib==1.1
 httpcore==0.18.0
 httptools==0.6.0
 httpx==0.25.0
@@ -81,6 +88,7 @@ ipython==8.15.0
 itsdangerous==2.1.2
 jedi==0.19.0
 Jinja2==3.1.2
+jiter==0.5.0
 joblib==1.3.2
 jsonpatch==1.33
 jsonpointer==2.4
@@ -89,9 +97,12 @@ jsonschema-specifications==2023.7.1
 jupyter_client==8.3.1
 jupyter_core==5.3.1
 kiwisolver==1.4.5
-langchain==0.0.332
+langchain==0.2.16
+langchain-community==0.2.16
+langchain-core==0.2.39
+langchain-text-splitters==0.2.4
 langcodes==3.3.0
-langsmith==0.0.52
+langsmith==0.1.118
 layoutparser==0.3.4
 loguru==0.7.2
 lxml==4.9.3
@@ -107,6 +118,7 @@ monotonic==1.6
 mpmath==1.3.0
 msg-parser==1.2.0
 multidict==6.0.4
+multitasking==0.0.11
 murmurhash==1.0.10
 mypy-extensions==1.0.0
 nest-asyncio==1.5.8
@@ -121,9 +133,9 @@ onnxruntime==1.16.0
 openai==1.45.0
 opencv-python==4.8.0.76
 openpyxl==3.1.2
-orjson==3.9.9
+orjson==3.10.7
 overrides==7.4.0
-packaging==23.1
+packaging>=23.0,<25
 pandas==2.1.0
 parso==0.8.3
 pathspec==0.11.2
@@ -131,6 +143,7 @@ pathy==0.10.2
 pdf2image==1.16.3
 pdfminer.six==20221105
 pdfplumber==0.10.2
+peewee==3.17.6
 pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==9.5.0
@@ -140,6 +153,7 @@ playwright==1.39.0
 portalocker==2.8.2
 posthog==3.0.2
 preshed==3.0.9
+primp==0.6.1
 prompt-toolkit==3.0.39
 protobuf==4.24.3
 psutil==5.9.5
@@ -161,6 +175,7 @@ pyparsing==3.1.1
 pypdf==3.16.2
 pypdfium2==4.20.0
 PyPika==0.48.9
+pyreadline3==3.4.1
 pytesseract==0.3.10
 python-dateutil==2.8.2
 python-docx==0.8.11
@@ -219,7 +234,7 @@ traitlets==5.10.0
 transformers==4.34.0
 typer==0.9.0
 typing-inspect==0.9.0
-typing_extensions==4.7.1
+typing_extensions==4.12.2
 tzdata==2023.3
 tzlocal==4.3.1
 ujson==5.8.0
@@ -233,10 +248,13 @@ wasabi==1.1.2
 watchdog==3.0.0
 watchfiles==0.20.0
 wcwidth==0.2.6
+webencodings==0.5.1
 websockets==11.0.3
 wikipedia==1.4.0
+win32-setctime==1.1.0
 xlrd==2.0.1
 XlsxWriter==3.1.5
+xyzservices==2024.9.0
 yarl==1.9.2
 yfinance==0.2.43
 zipp==3.16.2
