@@ -163,7 +163,6 @@ def create_run(assistant_id, thread_id):
         thread_id=thread_id,
         assistant_id=assistant_id,
     )
-    # st.write(f'create_run run_id: {run.id}')
     return run
 
 def get_run(run_id, thread_id):
@@ -188,24 +187,20 @@ def get_messages(thread_id):
 
 def get_tool_outputs(run_id, thread_id):
     run = get_run(run_id, thread_id)
-    # st.write(f'get_tool_outputs run: {run}')
     outputs = []
 
     if (run.required_action == None) or (run.required_action.submit_tool_outputs == None):
-        # st.write(f'get_tool_outputs return []')
         return outputs
     
     for action in run.required_action.submit_tool_outputs.tool_calls:
         action_id = action.id
         function = action.function
-        # print(f"Calling function: {function.name} with arg {function.arguments}")
         outputs.append(
             {
                 "output": functions_map[function.name](json.loads(function.arguments)),
                 "tool_call_id": action_id,
             }
         )
-    # st.write(f'get_tool_outputs return {outputs}')
     return outputs
 
 
@@ -287,11 +282,9 @@ else:
         )
         assistant_id = assistant.id
         st.session_state["assistant_id"] = assistant_id
-        # st.write(f'step1. create assistant_id: {assistant_id}')
     else:
         if st.session_state["assistant_id"] != []:
             assistant_id = st.session_state["assistant_id"]
-            # st.write(f'step1. create assistant_id: {assistant_id}')
 
 
         
@@ -302,7 +295,6 @@ else:
     if message:
         if st.session_state["thread_id"] != []:
             thread_id = st.session_state["thread_id"]
-            # st.write(f'step2. thread_id: {thread_id}')
         else:
             thread = client.beta.threads.create(
                 messages=[
@@ -314,22 +306,15 @@ else:
             )
             thread_id = thread.id
             st.session_state["thread_id"] = thread_id
-            # st.write(f'step2. create thread, thread_id: {thread_id}, thread.id: {thread.id}')
-            # st.write(f'step2. create thread, thread: ({thread})')
 
-        send_message(message, "human")
-        
-        # st.write(f'step !!!. check, assistant_id: {assistant_id}, thread_id: {thread_id}')
-
+        send_message(message, "human")        
         create_message(thread_id, message)        
         run = create_run(assistant_id=assistant_id, thread_id=thread_id)
-        st.write(f'step !!!. check, run_id: {run.id}')
         
         run_status = get_run(run.id, thread_id).status
         while run_status != 'completed' and run_status != 'failed':
             with st.spinner('InvestorGPT가 생각중이에요...'):
                 run_status = get_run(run.id, thread_id).status
-                st.write(f'check, run_status: {run_status}')
                 time.sleep(1)
                 if run_status == 'requires_action':
                     while run_status == 'requires_action':
