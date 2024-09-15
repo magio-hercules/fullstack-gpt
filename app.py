@@ -21,6 +21,7 @@ FullstackGPT를 배우는 과정에서 연습하는 공간입니다.
 - [x] [SiteGPT](/SiteGPT)
 - [ ] [MeetingGPT](/MeetingGPT)
 - [ ] [InvestorGPT](/InvestorGPT)
+- [x] [InvestorGPT_OpenAI](/InvestorGPT_OpenAI)
 
 
 """

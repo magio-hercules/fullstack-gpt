@@ -1,0 +1,26 @@
+### Research on the XZ Backdoor
+
+#### Overview
+The XZ backdoor refers to a malicious code that was inserted into the XZ Utils, a widely used open-source data compression utility for Linux and Unix-like operating systems. This backdoor was discovered in early 2024 and is notable for its sophisticated execution and the potential impact it could have had on millions of devices worldwide.
+
+#### What is XZ Utils?
+XZ Utils is a software package that provides lossless data compression. It is integral to many Linux distributions, including Debian and Red Hat, and is used for compressing and decompressing files. The utility supports the .lzma format, making it essential for various operations in Unix-like systems.
+
+#### Discovery of the Backdoor
+The backdoor was discovered by Andres Freund, a developer at Microsoft, who noticed unusual performance issues with SSH logins on a Debian system. His investigation led to the revelation that the issues stemmed from malicious updates made to XZ Utils. The backdoor was designed to manipulate SSH connections, allowing an attacker with a specific encryption key to execute arbitrary code on compromised systems.
+
+#### Technical Details
+The malicious code was introduced in versions 5.6.0 and 5.6.1 of XZ Utils. It modified the behavior of the SSH daemon (sshd), enabling unauthorized access to systems. The backdoor was cleverly designed to wait for an attacker to connect via SSH, rather than reaching out to a command-and-control server, which is a common tactic in malware design.
+
+#### The Developer Behind the Backdoor
+The backdoor was attributed to a developer using the pseudonym Jia Tan, who had been contributing to open-source projects since 2021. Jia Tan's contributions were initially benign, but over time, they gained control over the XZ Utils project. The persona of Jia Tan is suspected to be a front for a state-sponsored hacking group, given the sophistication and planning involved in the attack.
+
+#### Implications and Response
+The discovery of the XZ backdoor raised alarms within the cybersecurity community, highlighting vulnerabilities in the open-source software supply chain. The incident is considered one of the most sophisticated supply chain attacks to date, drawing comparisons to the SolarWinds attack of 2020. Following the discovery, various Linux distributions, including Fedora and Debian, issued security advisories to mitigate the risks associated with the backdoored versions of XZ Utils.
+
+#### Conclusion
+The XZ backdoor incident underscores the importance of vigilance in the open-source community and the potential risks associated with software supply chain attacks. As open-source software continues to be widely adopted, ensuring the integrity of contributions and maintaining robust security practices will be crucial in preventing similar incidents in the future.
+
+#### Sources
+1. Ars Technica - [What we know about the xz Utils backdoor that almost infected the world](https://arstechnica.com/security/2024/04/what-we-know-about-the-xz-utils-backdoor-that-almost-infected-the-world/)
+2. Wired - [The Mystery of 'Jia Tan,' the XZ Backdoor Mastermind](https://www.wired.com/story/jia-tan-xz-backdoor/)
