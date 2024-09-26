@@ -1,3 +1,4 @@
+
 import json
 import logging
 import os
@@ -37,8 +38,7 @@ class JsonOutputParser(BaseOutputParser):
             text = text.replace("```", "").replace("json", "")
             return json.loads(text)
         else:
-            return ""
-
+            return ''
 
 output_parser = JsonOutputParser()
 
@@ -49,10 +49,14 @@ output_parser = JsonOutputParser()
 def format_docs(docs):
     return "\n\n".join(document.page_content for document in docs)
 
-
 function = {
     "name": "create_quiz",
-    "description": "다음과 같은 조건으로 퀴즈 문제를 구성해줘.",
+    "description": """
+        이 function은 주어진 제시어를 이용해 문제와 답변이 있는 퀴즈를 10문제 만들어 줘.
+        모든 문제는 중복되지 않아야해.
+        1개의 질문에 4개의 답변이 있는 퀴즈 형식으로 만들어줘.
+        질문과 답변은 한국어로 번역해서 표시해줘.
+    """,
     "parameters": {
         "type": "object",
         "properties": {
@@ -91,8 +95,6 @@ function = {
 if type == "FunctionCalling":
     llm = ChatOpenAI(
         temperature=0.1,
-        # model="gpt-3.5-turbo-1106",
-        # model="gpt-4o-mini-2024-07-18",
         model="gpt-4o-mini-2024-07-18",
     ).bind(
         function_call={
@@ -100,7 +102,7 @@ if type == "FunctionCalling":
         },
         functions=[
             function,
-        ],
+        ]
     )
 else:
     llm = ChatOpenAI(
@@ -112,27 +114,20 @@ else:
 
 # FunctionCalling
 fc_prompt = PromptTemplate.from_template(
-    """
-            너는 퀴즈 문제 출제자로서 주어진 내용을 가지고 그 내용을 잘 알고 있는지 테스트를 할 수 있는 문제를 만들거야.
-            주어진 제시어와 난이도를 이용해 아래의 조건에 맞게 제시어와 관련된 10개의 퀴즈 문제를 만들어 줘.
-            # 조건
-            1. 모든 문제는 중복되지 않는다.
-            2. 각 질문은 4개의 답변이 있는 형식으로 구성된다.
-            3. 난이도는 '쉬움'과 '어려움'으로 구성된다.
-            4. 모든 질문과 답변은 한국어로 번역해서 표시한다.
-            
-            #내용
+            """
+            아래 제시된 내용에 대해서 퀴즈를 만들어줘.
+            ---
             difficulty: {difficulty}
             Context: {context}
             """
-)
+        )
 
-# PromptTemplate
+# PromptTemplate 
 pt_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            """
+"""
     You are a helpful assistant that is role playing as a teacher.
          
     Based ONLY on the following context make 10 (TEN) questions to test the user's knowledge about the text.
@@ -167,9 +162,7 @@ pt_prompt = ChatPromptTemplate.from_messages(
 )
 
 # pt_chain = {"context": format_docs} | pt_prompt | llm
-pt_chain = (
-    {"context": format_docs, "difficulty": RunnablePassthrough()} | pt_prompt | llm
-)
+pt_chain = {"context": format_docs, "difficulty": RunnablePassthrough()} | pt_prompt | llm
 # pt_chain = {"context": RunnablePassthrough(), "difficulty": RunnablePassthrough()} | pt_prompt | llm
 
 formatting_prompt = ChatPromptTemplate.from_messages(
@@ -299,18 +292,20 @@ formatting_prompt = ChatPromptTemplate.from_messages(
 
 formatting_chain = formatting_prompt | llm
 
-
-@st.cache_resource(show_spinner="Loading file...")
+@st.cache_data(show_spinner="Loading file...")
 def split_file(file):
     file_path = f"./.cache/quiz_files/{file.name}"
 
     # 폴더 경로만 추출 (파일명 제외)
     folder_path = os.path.dirname(file_path)
-
+    
     # 폴더가 존재하는지 확인하고, 없으면 생성
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
+    # st.write(f'folder_path: {folder_path}')
+    # st.write(f'file_path: {file_path}')
+    
     file_content = file.read()
     with open(file_path, "wb") as f:
         f.write(file_content)
@@ -324,7 +319,7 @@ def split_file(file):
     return docs
 
 
-@st.cache_resource(show_spinner="퀴즈 생성중...")
+@st.cache_data(show_spinner="퀴즈 생성중...")
 def run_quiz_chain(_docs, type, difficulty, topic):
     if type == "FunctionCalling":
         chain = fc_prompt | llm
@@ -336,12 +331,11 @@ def run_quiz_chain(_docs, type, difficulty, topic):
         # return chain.invoke({"context": _docs, "difficulty": difficulty})
 
 
-@st.cache_resource(show_spinner="Wikipedia 검색중...")
+@st.cache_data(show_spinner="Wikipedia 검색중...")
 def wiki_search(term):
-    retriever = WikipediaRetriever(top_k_results=2)
+    retriever = WikipediaRetriever(top_k_results=5)
     docs = retriever.get_relevant_documents(term)
     return docs
-
 
 def format_docs(docs):
     return "\n\n".join(document.page_content for document in docs)
@@ -354,15 +348,15 @@ st.title("QuizGPT")
 
 with st.sidebar:
     api_key = st.text_input(
-        "Step1. OpenAI API keys를 입력해주세요.",
-        type="password",
+        'Step1. OpenAI API keys를 입력해주세요.',
+        type='password',
     )
     if api_key:
         type = st.selectbox(
             "Step2. QuizGPT 타입을 선택해주세요.",
             (
                 "FunctionCalling",
-                # "PromptTemplate",
+                # "PromptTemplate", 
             ),
             index=0,
         )
@@ -393,7 +387,7 @@ with st.sidebar:
             topic = st.text_input("Wikipedia 검색어")
             if topic:
                 docs = wiki_search(topic)
-
+            
 
 ############
 # 4. Logic #
@@ -413,17 +407,19 @@ else:
         if response.additional_kwargs:
             response = response.additional_kwargs["function_call"]["arguments"]
         response = json.loads(response)
+
+
     elif type == "PromptTemplate":
         response = run_quiz_chain(docs, type, difficulty, topic if topic else file.name)
 
     with st.form("questions_form"):
         if response:
-            correct_count = 0
+            correct_count = 0;
             for i, question in enumerate(response["questions"], start=1):
                 value = st.radio(
                     f'{i}번 문제. {question["question"]}',
                     [answer["answer"] for answer in question["answers"]],
-                    key=f"q{i}",
+                    key=f'q{i}',
                     index=None,
                 )
 
@@ -432,9 +428,9 @@ else:
                     correct_count += 1
                 elif value is not None:
                     st.error(f"{i}번 오답 😱")
-
+            
             if correct_count == len(response["questions"]):
                 st.info("🎉축하합니다🎊 모든 문제를 맞추셨어요!!🥳")
                 st.balloons()
-
+            
             button = st.form_submit_button()

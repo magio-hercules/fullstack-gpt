@@ -17,7 +17,7 @@ from langchain.memory import ConversationBufferMemory
 # 로그 설정
 logging.basicConfig(
     level=logging.INFO,
-    format='[%(levelname)s] %(message)s',
+    format="[%(levelname)s] %(message)s",
 )
 
 st.set_page_config(
@@ -28,7 +28,7 @@ st.set_page_config(
 file = None
 
 with st.sidebar:
-    api_key = st.text_input('1. OpenAI API keys를 입력해주세요.')
+    api_key = st.text_input("1. OpenAI API keys를 입력해주세요.")
 
     if api_key:
         file = st.file_uploader(
@@ -57,28 +57,25 @@ llm = ChatOpenAI(
     callbacks=[
         ChatCallbackHandler(),
     ],
-    openai_api_key=api_key
+    openai_api_key=api_key,
 )
 
-memory = ConversationBufferMemory(
-    llm=llm,
-    return_messages=True
-)
+memory = ConversationBufferMemory(llm=llm, return_messages=True)
 
 
-@st.cache_data(show_spinner="파일 임베딩 중...")
+@st.cache_resource(show_spinner="파일 임베딩 중...")
 def embed_file(file):
     file_path = f"./.cache/files/{file.name}"
 
     # 폴더 경로만 추출 (파일명 제외)
     folder_path = os.path.dirname(file_path)
-    
+
     # 폴더가 존재하는지 확인하고, 없으면 생성
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
-    logging.info(f'folder_path: {folder_path}')
-    logging.info(f'file_path: {file_path}')
+    logging.info(f"folder_path: {folder_path}")
+    logging.info(f"file_path: {file_path}")
 
     file_content = file.read()
     with open(file_path, "wb") as f:
@@ -141,7 +138,7 @@ prompt = ChatPromptTemplate.from_messages(
 
 st.title("DocumentGPT")
 st.markdown(
-"""
+    """
 이 챗봇은 파일의 내용을 분석해서 대답해주는 AI 챗봇입니다.
 
 사용 방법은 다음과 같습니다.
@@ -157,6 +154,7 @@ st.markdown(
 def load_memory(_):
     return memory.load_memory_variables({})["history"]
 
+
 if file:
     retriever = embed_file(file)
     send_message("챗봇 준비완료! 무엇이든 물어보세요!", "ai", save=False)
@@ -167,7 +165,7 @@ if file:
         chain = (
             {
                 "context": retriever | RunnableLambda(format_docs),
-                "question": RunnablePassthrough(), 
+                "question": RunnablePassthrough(),
                 "history": load_memory,
             }
             | prompt

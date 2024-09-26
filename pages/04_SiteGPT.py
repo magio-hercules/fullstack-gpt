@@ -21,9 +21,10 @@ st.set_page_config(
 
 with st.sidebar:
     api_key = st.text_input(
-        'Step1. OpenAI API keys를 입력해주세요.',
-        type='password',
+        "Step1. OpenAI API keys를 입력해주세요.",
+        type="password",
     )
+
 
 class ChatCallbackHandler(BaseCallbackHandler):
     message = ""
@@ -40,20 +41,17 @@ class ChatCallbackHandler(BaseCallbackHandler):
         self.message += token
         # self.message_box.markdown(self.message)
 
-        
+
 llm = ChatOpenAI(
     temperature=0.1,
     streaming=True,
     callbacks=[
         ChatCallbackHandler(),
     ],
-    openai_api_key=api_key
+    openai_api_key=api_key,
 )
 
-memory = ConversationBufferMemory(
-    llm=llm,
-    return_messages=True
-)
+memory = ConversationBufferMemory(llm=llm, return_messages=True)
 
 answers_prompt = ChatPromptTemplate.from_template(
     """
@@ -95,7 +93,7 @@ def get_answers(inputs):
             {
                 "answer": answers_chain.invoke(
                     {
-                        "question": question, 
+                        "question": question,
                         "context": doc.page_content,
                     },
                 ).content,
@@ -160,6 +158,7 @@ def parse_page(soup):
         .replace("CloseSearch Submit Blog", "")
     )
 
+
 def save_message(message, role):
     st.session_state["messages"].append({"message": message, "role": role})
 
@@ -170,6 +169,7 @@ def send_message(message, role, save=True):
     if save:
         save_message(message, role)
 
+
 def paint_history():
     for message in st.session_state["messages"]:
         send_message(
@@ -178,19 +178,22 @@ def paint_history():
             save=False,
         )
 
+
 def load_memory(_):
     return memory.load_memory_variables({})["history"]
+
 
 # site 이름 뽑아내기
 def extract_site_name(url):
     parsed_url = urlparse(url)
     return parsed_url.netloc
 
-@st.cache_data(show_spinner="Loading website...")
+
+@st.cache_resource(show_spinner="Loading website...")
 def load_website(url):
     dir_path = f"./.cache/embeddings_sites/{extract_site_name(url)}"
     # st.write(f'load_website: {extract_site_name(url)}')
-    
+
     # 폴더가 존재하는지 확인하고, 없으면 생성
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -202,13 +205,17 @@ def load_website(url):
         chunk_overlap=200,
     )
 
-    filters = [
+    filters = (
+        [
             r"^(.*\/ai-gateway\/).*",
             r"^(.*\/vectorize\/).*",
             r"^(.*\/workers-ai\/).*",
-        ] if site_type == 'Cloudflare' else [
-             r"^(.*\/ui\/).*",
         ]
+        if site_type == "Cloudflare"
+        else [
+            r"^(.*\/ui\/).*",
+        ]
+    )
     loader = SitemapLoader(
         url,
         parsing_function=parse_page,
@@ -228,12 +235,19 @@ def load_website(url):
 
 
 with st.sidebar:
-    site_type = st.radio(label = 'Step2. WebSite 선택', options = ['Cloudflare', 'Flutter'])
-    st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
+    site_type = st.radio(label="Step2. WebSite 선택", options=["Cloudflare", "Flutter"])
+    st.write(
+        "<style>div.row-widget.stRadio > div{flex-direction:row;}</style>",
+        unsafe_allow_html=True,
+    )
     url = st.text_input(
         "Step2-1. Site URL (고정)",
         placeholder="https://example.com",
-        value="https://developers.cloudflare.com/sitemap-0.xml" if site_type == 'Cloudflare' else "https://docs.flutter.dev/sitemap.xml",
+        value=(
+            "https://developers.cloudflare.com/sitemap-0.xml"
+            if site_type == "Cloudflare"
+            else "https://docs.flutter.dev/sitemap.xml"
+        ),
         disabled=True,
     )
 
@@ -246,7 +260,7 @@ st.markdown(
 )
 
 if not api_key:
-    st.error('Step1. OpenAI API Key를 입력해주세요.')
+    st.error("Step1. OpenAI API Key를 입력해주세요.")
 
 if (not api_key) or (not url):
     st.session_state["messages"] = []
